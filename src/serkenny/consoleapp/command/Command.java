@@ -1,7 +1,6 @@
 package serkenny.consoleapp.command;
 
 import serkenny.consoleapp.error.CommandError;
-import serkenny.consoleapp.error.ExecutionError;
 
 import java.util.List;
 

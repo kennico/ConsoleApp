@@ -1,13 +1,13 @@
 package serkenny.consoleapp.command;
 
 import com.sun.istack.internal.Nullable;
-import serkenny.consoleapp.error.ArgsProcessError;
+import serkenny.consoleapp.error.ArgumentError;
 
 import java.util.List;
 import java.util.Map;
 
 
-public abstract class OptionCommand extends VarargsCommand {
+public abstract class OptionCommand extends VarArgsCommand {
 
     private ArgsDispatcher dispatcher;
     private Map<String, String> kwargs;
@@ -20,12 +20,16 @@ public abstract class OptionCommand extends VarargsCommand {
         this.dispatcher = new OptionDispatcher(options, flags);
     }
 
-    public String getOption(String option) {
+    public String retrieveOpt(String option) {
         return kwargs.get(option);
     }
 
+    public boolean containsOpt(String option) {
+        return kwargs.containsKey(option);
+    }
+
     @Override
-    protected void preprocessArgs() throws ArgsProcessError {
+    protected void preprocessArgs() throws ArgumentError {
         OptionArgs args = dispatcher.parse(getRawArgStrings());
         setVarvargs(args.getVarargs().listIterator());
         this.kwargs = args.getKwargs();

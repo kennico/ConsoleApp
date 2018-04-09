@@ -1,9 +1,12 @@
 package serkenny.consoleapp.command;
 
 
-import serkenny.consoleapp.error.*;
+import serkenny.consoleapp.error.ArgumentError;
+import serkenny.consoleapp.error.CommandError;
+import serkenny.consoleapp.error.ExecutionError;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class AbstractCommand implements Command {
 
@@ -12,9 +15,9 @@ public abstract class AbstractCommand implements Command {
     /**
      * Process raw argument strings in advance.
      *
-     * @throws ArgsProcessError if any error occurred
+     * @throws ArgumentError if any error occurred
      */
-    protected abstract void preprocessArgs() throws ArgsProcessError;
+    protected abstract void preprocessArgs() throws ArgumentError;
 
     /**
      * Shall not be overridden

@@ -1,11 +1,11 @@
 package serkenny.consoleapp.command;
 
-import serkenny.consoleapp.error.ArgsProcessError;
+import serkenny.consoleapp.error.ArgumentError;
 
 import java.util.List;
 
 public interface ArgsDispatcher {
 
-    OptionArgs parse(List<String> rawArgs) throws ArgsProcessError;
+    OptionArgs parse(List<String> rawArgs) throws ArgumentError;
 
 }

@@ -1,10 +1,8 @@
 package serkenny.consoleapp;
 
 import serkenny.consoleapp.command.Command;
-import serkenny.consoleapp.error.ArgsProcessError;
 import serkenny.consoleapp.error.CommandError;
-import serkenny.consoleapp.error.ExecutionError;
-import serkenny.consoleapp.error.NoSuchCommandError;
+import serkenny.consoleapp.error.NoSuchCommand;
 
 import java.util.*;
 
@@ -59,7 +57,7 @@ public class Console {
                     try {
                         getCommand(cmdName).execute(rawArgs);
 
-                    } catch (NoSuchCommandError e) {
+                    } catch (NoSuchCommand e) {
                         outputln(e.getMessage());
 
                     } catch (CommandError e) {
@@ -168,10 +166,10 @@ public class Console {
         return appName;
     }
 
-    protected Command getCommand(String commandName) throws NoSuchCommandError {
+    protected Command getCommand(String commandName) throws NoSuchCommand {
         Command command = cmdMap.get(commandName);
         if (command == null)
-            throw new NoSuchCommandError(commandName);
+            throw new NoSuchCommand(commandName);
         return command;
     }
 

@@ -1,8 +1,7 @@
 package serkenny.consoleapp.command;
 
 import com.sun.istack.internal.Nullable;
-import serkenny.consoleapp.error.ArgsProcessError;
-import serkenny.consoleapp.error.ExecutionError;
+import serkenny.consoleapp.error.ArgumentError;
 
 import java.util.*;
 
@@ -30,7 +29,7 @@ public class OptionDispatcher implements ArgsDispatcher {
     }
 
     @Override
-    public OptionArgs parse(List<String> rawArgs) throws ArgsProcessError {
+    public OptionArgs parse(List<String> rawArgs) throws ArgumentError {
 
         List<String> pendingOpts = new LinkedList<>();
 
@@ -52,7 +51,7 @@ public class OptionDispatcher implements ArgsDispatcher {
                     } else if (FLAGS.contains(opt)) {
                         kwargs.put(opt, null);
                     } else {
-                        throw new ArgsProcessError(opt, "unknown option");
+                        throw new ArgumentError(opt, "unknown option");
                     }
                 }
 
@@ -77,7 +76,7 @@ public class OptionDispatcher implements ArgsDispatcher {
         while there still exists flag(s) not paired with argument(s).
         */
         if (!pendingOpts.isEmpty()) {
-            throw new ArgsProcessError(pendingOpts.get(0), "missing option value");
+            throw new ArgumentError(pendingOpts.get(0), "missing option value");
         }
         return new OptionArgs(args, kwargs);
     }

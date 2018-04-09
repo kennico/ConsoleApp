@@ -1,20 +1,23 @@
 package serkenny.consoleapp.command;
 
-import serkenny.consoleapp.error.ArgsProcessError;
+import serkenny.consoleapp.error.ArgumentError;
 
 import java.util.ListIterator;
 
-public abstract class VarargsCommand extends AbstractCommand {
+/**
+ * Super class for commands that take an arbitrary number of arguments
+ */
+public abstract class VarArgsCommand extends AbstractCommand {
 
     private ListIterator<String> varvargs;
 
     /**
      * Process raw argument strings in advance.
      *
-     * @throws ArgsProcessError if any error occurred
+     * @throws ArgumentError if any error occurred
      */
     @Override
-    protected void preprocessArgs() throws ArgsProcessError {
+    protected void preprocessArgs() throws ArgumentError {
         setVarvargs(getRawArgStrings().listIterator());
     }
 
