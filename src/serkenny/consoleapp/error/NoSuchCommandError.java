@@ -1,4 +1,4 @@
-package serkenny.consoleapp;
+package serkenny.consoleapp.error;
 
 public class NoSuchCommandError extends Exception {
     public NoSuchCommandError(String commandName) {

@@ -1,27 +1,32 @@
-import serkenny.consoleapp.*;
+import serkenny.consoleapp.Console;
+import serkenny.consoleapp.command.OptionCommand;
+import serkenny.consoleapp.error.ExecutionError;
 
-import java.util.List;
-import java.util.Map;
 
-public class Demo extends Console{
+/**
+ * Run java program from command line prompt created by IntelliJ
+ * <p>
+ * https://stackoverflow.com/questions/27108911/how-to-run-java-program-in-command-prompt-created-by-intellij
+ */
+public class Demo extends Console {
 
     /**
-     * @return 1 if any error occurs; otherwise, 0 is returned.
+     * @return true if any error occurred; otherwise, false is returned
      */
     @Override
-    protected int preLaunched() {
-        int code = super.preLaunched();
+    protected boolean preLaunched() {
+        boolean code = super.preLaunched();
 
         addCommand("hello", new OptionCommand(null, null) {
+
+            /**
+             * @throws ExecutionError e
+             */
             @Override
-            protected void run(List<String> args, Map<String, String> kwargs) throws ExecutionError {
-                try {
-                    int times = Integer.parseInt(args.remove(0));
-                    for (int i = 0 ; i < times ; ++i){
-                        output("Hello, world!");
-                    }
-                } catch (Exception e) {
-                    throw new ExecutionError(e.getMessage());
+            protected void execute() throws ExecutionError {
+                int times = Integer.parseInt(getVarvargs().next());
+                for (int i = 0; i < times; i++) {
+                    outputln("Hello, world!");
                 }
             }
         });

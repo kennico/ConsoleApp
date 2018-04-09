@@ -1,13 +1,17 @@
 package serkenny.consoleapp;
 
-import java.text.MessageFormat;
+import serkenny.consoleapp.command.Command;
+import serkenny.consoleapp.error.ArgsProcessError;
+import serkenny.consoleapp.error.CommandError;
+import serkenny.consoleapp.error.ExecutionError;
+import serkenny.consoleapp.error.NoSuchCommandError;
+
 import java.util.*;
 
 
 public class Console {
 
-    private final static String ECHO_FORMAT = "%s@%s:-> %s\n";
-    private final static String PROMPT_FORMAT = "%s@%s:-> %s";
+    private final static String USER_APP_FORMAT = "%s@%s:-> ";
 
     public enum STATUS {
         CREATED, INIT,
@@ -15,23 +19,32 @@ public class Console {
     }
 
     private STATUS status = STATUS.CREATED;
+    private boolean shutdownFlag = false;
+
     private String userName = "serkenny";
     private String appName = "console";
+
     private Map<String, Command> cmdMap = new HashMap<>();
+
+    protected boolean getShutdownFlag() {
+        return shutdownFlag;
+    }
+
+    protected void setShutdownFlag(boolean shutdownFlag) {
+        this.shutdownFlag = shutdownFlag;
+    }
 
 
     public void launch() {
+        setShutdownFlag(preLaunched());
 
-        setStatus(STATUS.INIT);
-        output("Console initializing...");
-        int shutdownFlag = preLaunched();
         setStatus(STATUS.RUNNING);
-        output("Console running...");
+        outputln("Console running...");
 
         Scanner scanner = new Scanner(System.in);
 
-        while (shutdownFlag == 0) {
-            prompt("");
+        while (!getShutdownFlag()) {
+            prompt();
 
             try {
                 // Read next line as a string
@@ -46,47 +59,58 @@ public class Console {
                     try {
                         getCommand(cmdName).execute(rawArgs);
 
-                    } catch (ExecutionError e) {
-                        echo(MessageFormat.format("Error in {0}:{1}", cmdName, e.getMessage()));
-
                     } catch (NoSuchCommandError e) {
-                        echo(e.getMessage());
+                        outputln(e.getMessage());
+
+                    } catch (CommandError e) {
+                        outputln(String.format("Error in %s:\n\t%s", cmdName, e.getMessage()));
 
                     } catch (Exception e) {
-                        echo(e.getMessage());
-                        shutdownFlag = 1;
+                        outputln(e.getMessage());
+                        setShutdownFlag(true);
                     }
                 }
+
             } catch (NoSuchElementException e) {
                 // catch the ctrl+c character
-                shutdownFlag = 1;
+                setShutdownFlag(true);
             }
         }
 
-        output("Console exited.");
         onTerminated();
-
-        setStatus(STATUS.TERMINATED);
     }
 
+    /**
+     * Terminates the current line by writing '\n'.
+     */
+    public void outputln() {
+        output("\n");
+    }
+
+    /**
+     * Print a formatted message and then terminate the line.
+     *
+     * @param format message format used by MessageFormat
+     * @param args   variable length arguments
+     */
+    public void outputln(String format, Object... args) {
+        output(format, args);
+        outputln();
+    }
+
+    /**
+     * Print a formatted message.
+     *
+     * @param format message format used by MessageFormat
+     * @param args   variable length arguments
+     */
     public void output(String format, Object... args) {
-        System.out.println(MessageFormat.format(format, args));
+        System.out.format(format, args);
     }
 
-    public void input(String format, Object... args) {
-        System.out.print(MessageFormat.format(format, args));
-    }
 
-    private void echo(String message) {
-        System.out.format(
-                ECHO_FORMAT, getUserName(), getAppName(), message
-        );
-    }
-
-    private void prompt(String message) {
-        System.out.format(
-                PROMPT_FORMAT, getUserName(), getAppName(), message
-        );
+    private void prompt() {
+        output(String.format(USER_APP_FORMAT, getUserName(), getAppName()));
     }
 
     public STATUS getStatus() {
@@ -98,14 +122,34 @@ public class Console {
     }
 
     /**
-     *
-     * @return 1 if any error occurs; otherwise, 0 is returned.
+     * @return true if any error occurs; otherwise, false is returned.
      */
-    protected int preLaunched() {
-        return 0;
+    protected boolean preLaunched() {
+
+        setStatus(STATUS.INIT);
+        outputln("Console initializing...");
+
+        addCommand("exit", new Command() {
+            @Override
+            public void execute(List<String> args) throws CommandError {
+                setShutdownFlag(true);
+            }
+
+            @Override
+            public void execute(String line) throws CommandError {
+                setShutdownFlag(true);
+            }
+        });
+
+        return false;
     }
 
+    /**
+     * Called on leaving.
+     */
     protected void onTerminated() {
+        setStatus(STATUS.TERMINATED);
+        outputln("Console exited.");
     }
 
     protected void setUserName(String userName) {

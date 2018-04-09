@@ -1,9 +1,11 @@
-package serkenny.consoleapp;
+package serkenny.consoleapp.command;
 
 import com.sun.istack.internal.Nullable;
+import serkenny.consoleapp.error.ArgsProcessError;
+import serkenny.consoleapp.error.ExecutionError;
 
-import java.text.MessageFormat;
 import java.util.*;
+
 
 public class OptionDispatcher implements ArgsDispatcher {
 
@@ -28,9 +30,9 @@ public class OptionDispatcher implements ArgsDispatcher {
     }
 
     @Override
-    public Arguments parse(List<String> rawArgs) throws ExecutionError {
+    public OptionArgs parse(List<String> rawArgs) throws ArgsProcessError {
 
-        List<String> pendingFlags = new LinkedList<>();
+        List<String> pendingOpts = new LinkedList<>();
 
         List<String> args = new LinkedList<>();
         Map<String, String> kwargs = new HashMap<>();
@@ -43,25 +45,25 @@ public class OptionDispatcher implements ArgsDispatcher {
 
                 */
                 for (int i = 1; i < rawArg.length(); i++) {
-                    String flag = "-" + rawArg.charAt(i);
+                    String opt = "-" + rawArg.charAt(i);
 
-                    if (OPTIONS.contains(flag)) {
-                        pendingFlags.add(flag);
-                    } else if (FLAGS.contains(flag)) {
-                        kwargs.put(flag, null);
+                    if (OPTIONS.contains(opt)) {
+                        pendingOpts.add(opt);
+                    } else if (FLAGS.contains(opt)) {
+                        kwargs.put(opt, null);
                     } else {
-                        throw new ExecutionError("Unknown option: \"" + flag + "\"");
+                        throw new ArgsProcessError(opt, "unknown option");
                     }
                 }
 
-            } else if (!pendingFlags.isEmpty()) {
+            } else if (!pendingOpts.isEmpty()) {
                 /*
 
                 If it is not prefixed by a dash and there exists flags that
                 has been detected but not been paired with an actual argument.
 
                 */
-                String flag = pendingFlags.remove(0);
+                String flag = pendingOpts.remove(0);
                 kwargs.put(flag, rawArg);
             } else {
                 /*
@@ -74,13 +76,9 @@ public class OptionDispatcher implements ArgsDispatcher {
         If all raw strings from command line have been checked
         while there still exists flag(s) not paired with argument(s).
         */
-        if (!pendingFlags.isEmpty()) {
-            String message = MessageFormat.format(
-                    "Missing arguments for \"{0}\"",
-                    String.join("\",\"", pendingFlags)
-            );
-            throw new ExecutionError(message);
+        if (!pendingOpts.isEmpty()) {
+            throw new ArgsProcessError(pendingOpts.get(0), "missing option value");
         }
-        return new Arguments(args, kwargs);
+        return new OptionArgs(args, kwargs);
     }
 }
