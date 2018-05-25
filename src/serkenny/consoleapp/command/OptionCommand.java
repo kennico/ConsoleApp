@@ -5,6 +5,7 @@ import serkenny.consoleapp.error.ArgumentError;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 public abstract class OptionCommand extends VarArgsCommand {
@@ -33,5 +34,9 @@ public abstract class OptionCommand extends VarArgsCommand {
         OptionArgs args = dispatcher.parse(getRawArgStrings());
         setVarvargs(args.getVarargs().listIterator());
         this.kwargs = args.getKwargs();
+    }
+
+    public Set<Map.Entry<String, String>> getEntries() {
+        return kwargs.entrySet();
     }
 }
